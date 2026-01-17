@@ -1,0 +1,15 @@
+{
+  "name": "snippet-manager-api",
+  "version": "1.0.0",
+  "description": "REST API for managing code snippets - built with Ralph loop",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "vitest run"
+  },
+  "keywords": ["api", "snippets", "code", "ralph"],
+  "author": "Ali",
+  "license": "MIT"
+}
