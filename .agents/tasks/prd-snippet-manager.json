@@ -1,0 +1,244 @@
+{
+  "version": 1,
+  "project": "Code Snippet Manager API",
+  "overview": "Build a Node.js + Express REST API for storing, searching, and managing code snippets with syntax metadata, tags, and full CRUD support.",
+  "goals": [
+    "Create a SQLite-backed API with CRUD endpoints for snippets",
+    "Support filtering by language and tag, plus search across title and code",
+    "Provide comprehensive tests and clear API documentation"
+  ],
+  "nonGoals": [
+    "No authentication or user accounts",
+    "No web UI or frontend",
+    "No external search engine integration"
+  ],
+  "successMetrics": [
+    "All endpoints return JSON with correct status codes",
+    "All tests pass with npm test"
+  ],
+  "openQuestions": [],
+  "stack": {
+    "framework": "Express.js",
+    "hosting": "Local Node.js runtime",
+    "database": "SQLite (better-sqlite3)",
+    "auth": "None"
+  },
+  "routes": [
+    {
+      "path": "/api/snippets",
+      "name": "Snippets collection",
+      "purpose": "Create and list snippets"
+    },
+    {
+      "path": "/api/snippets/:id",
+      "name": "Snippet detail",
+      "purpose": "Read, update, and delete a snippet"
+    },
+    {
+      "path": "/api/snippets/search",
+      "name": "Search snippets",
+      "purpose": "Search snippets by keyword"
+    }
+  ],
+  "uiNotes": [
+    "API-only project; no frontend UI"
+  ],
+  "dataModel": [
+    {
+      "entity": "Snippet",
+      "fields": [
+        "id (string)",
+        "title (string)",
+        "code (string)",
+        "language (string)",
+        "tags (string[] stored as JSON)",
+        "created_at (ISO string)",
+        "updated_at (ISO string)"
+      ]
+    }
+  ],
+  "importFormat": {
+    "description": "Not applicable",
+    "example": {}
+  },
+  "rules": [
+    "All endpoints return JSON",
+    "Validation errors return 400 with a descriptive message",
+    "Search is case-insensitive across title and code",
+    "Tags are stored as a JSON array in SQLite"
+  ],
+  "qualityGates": [
+    "npm test"
+  ],
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Project setup and dependencies",
+      "status": "open",
+      "dependsOn": [],
+      "description": "As a developer, I want a properly configured Node.js project so I can build the API with modern tooling.",
+      "acceptanceCriteria": [
+        "Initialize package.json with type set to \"module\"",
+        "Install runtime dependencies: express, better-sqlite3, zod, uuid (include npm install command)",
+        "Install dev dependencies: vitest, supertest (include npm install -D command)",
+        "Create src/ directory structure for app, routes, and db modules",
+        "Add npm scripts: start, dev, test",
+        "Add .gitignore entries for node_modules and *.db",
+        "Example: npm test runs and exits successfully even if no tests exist yet",
+        "Negative case: attempting to run npm test before installing dev dependencies fails with missing module error"
+      ],
+      "startedAt": null,
+      "completedAt": null,
+      "updatedAt": "2026-01-17T19:26:36.272332+00:00"
+    },
+    {
+      "id": "US-002",
+      "title": "SQLite schema and database initialization",
+      "status": "open",
+      "dependsOn": [
+        "US-001"
+      ],
+      "description": "As a developer, I want a SQLite database schema so snippets can be persisted.",
+      "acceptanceCriteria": [
+        "Create src/db.js with database initialization using better-sqlite3",
+        "Create snippets table with columns: id, title, code, language, tags, created_at, updated_at",
+        "Tags are stored as JSON array (stringified)",
+        "Database file auto-creates if it does not exist",
+        "Example: starting the app creates the database file and table when missing",
+        "Negative case: if schema creation fails, the app surfaces a startup error and does not silently proceed"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Create snippet endpoint",
+      "status": "open",
+      "dependsOn": [
+        "US-002"
+      ],
+      "description": "As a user, I want to create snippets via POST /api/snippets so I can save my code.",
+      "acceptanceCriteria": [
+        "POST /api/snippets accepts JSON body",
+        "Validate: title (required, string), code (required, string), language (required, string), tags (optional, array of strings)",
+        "Return 201 with created snippet including generated id",
+        "Return 400 for validation errors with descriptive message",
+        "Example: POST with title, code, language, tags returns 201 and a snippet object with id",
+        "Negative case: POST missing title returns 400 with validation error"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "List snippets endpoint with filters",
+      "status": "open",
+      "dependsOn": [
+        "US-003"
+      ],
+      "description": "As a user, I want to list snippets via GET /api/snippets with optional filters so I can browse saved code.",
+      "acceptanceCriteria": [
+        "GET /api/snippets returns array of all snippets",
+        "Support query param ?language=python to filter by language",
+        "Support query param ?tag=api to filter by tag",
+        "Return 200 with empty array if no snippets",
+        "Example: GET /api/snippets?language=python returns only python snippets",
+        "Negative case: GET /api/snippets?tag=nonexistent returns 200 with empty array"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Get single snippet endpoint",
+      "status": "open",
+      "dependsOn": [
+        "US-004"
+      ],
+      "description": "As a user, I want to get a specific snippet via GET /api/snippets/:id so I can view snippet details.",
+      "acceptanceCriteria": [
+        "GET /api/snippets/:id returns single snippet object with all fields",
+        "Return 404 if snippet not found",
+        "Example: GET /api/snippets/:id returns the snippet matching that id",
+        "Negative case: GET /api/snippets/does-not-exist returns 404"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Update snippet endpoint",
+      "status": "open",
+      "dependsOn": [
+        "US-005"
+      ],
+      "description": "As a user, I want to update snippets via PUT /api/snippets/:id so I can modify saved code.",
+      "acceptanceCriteria": [
+        "PUT /api/snippets/:id accepts JSON body",
+        "Allow partial updates (only provided fields updated)",
+        "Update updated_at timestamp on changes",
+        "Return 200 with updated snippet",
+        "Return 404 if snippet not found",
+        "Example: PUT with new title returns 200 and updated title",
+        "Negative case: PUT with invalid tags (non-array) returns 400"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Delete snippet endpoint",
+      "status": "open",
+      "dependsOn": [
+        "US-006"
+      ],
+      "description": "As a user, I want to delete snippets via DELETE /api/snippets/:id so I can remove unwanted code.",
+      "acceptanceCriteria": [
+        "DELETE /api/snippets/:id removes snippet",
+        "Return 204 on successful deletion",
+        "Return 404 if snippet not found",
+        "Example: DELETE existing snippet returns 204 and subsequent GET returns 404",
+        "Negative case: DELETE /api/snippets/does-not-exist returns 404"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Search snippets endpoint",
+      "status": "open",
+      "dependsOn": [
+        "US-004"
+      ],
+      "description": "As a user, I want to search snippets via GET /api/snippets/search?q=keyword so I can find code quickly.",
+      "acceptanceCriteria": [
+        "GET /api/snippets/search?q=keyword searches title and code (case-insensitive)",
+        "Return matching snippets array",
+        "Return 400 if q parameter missing",
+        "Example: search q=fetch returns snippets with 'fetch' in title or code",
+        "Negative case: GET /api/snippets/search without q returns 400"
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "API tests",
+      "status": "open",
+      "dependsOn": [
+        "US-008"
+      ],
+      "description": "As a developer, I want comprehensive API tests so I can ensure reliability.",
+      "acceptanceCriteria": [
+        "Test all CRUD endpoints with supertest",
+        "Test validation errors and 404 cases",
+        "Test search functionality",
+        "Tests run via npm test with Vitest",
+        "Example: npm test passes with all suites green",
+        "Negative case: a regression (e.g., missing required field validation) should cause a failing test"
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Documentation",
+      "status": "open",
+      "dependsOn": [
+        "US-009"
+      ],
+      "description": "As a developer, I want README API docs so users know how to use the API.",
+      "acceptanceCriteria": [
+        "README includes project description and installation steps",
+        "Document all endpoints with example requests and responses",
+        "Provide example curl commands for each endpoint",
+        "Example: curl POST /api/snippets shown with valid body and 201 response",
+        "Negative case: README mentions validation errors and expected 400 response for bad input"
+      ]
+    }
+  ]
+}
