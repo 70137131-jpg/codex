@@ -1,113 +1,105 @@
-# Code Snippet Manager API
+# Code Snippet Manager
 
-> 🤖 Built autonomously using **Ralph Loop + OpenAI Codex**
+A REST API and a bold, modern frontend for managing code snippets with tags, language metadata, and search. The frontend can run in demo mode or connect to a live API via a single environment variable.
 
-A REST API for managing code snippets with tagging, search, and CRUD operations.
+## What is in this repo
 
-## Prerequisites
+- Backend API (Node.js + Express) scaffolding with SQLite planned
+- Frontend (Next.js) in the `web/` directory
+- Vercel-ready deployment for the frontend
 
-Before running Ralph loop, install these tools:
+## Features
+
+- Create, edit, and delete snippets
+- Filter by language and tag
+- Keyword search (title + code)
+- Toggle between demo data and live API
+- Vercel deployment configuration included
+
+## Tech stack
+
+Backend:
+- Node.js 20+
+- Express
+- SQLite (better-sqlite3)
+- Zod validation
+- Vitest + Supertest
+
+Frontend:
+- Next.js (App Router)
+- React 18
+- CSS with custom design system (no framework)
+
+## Project structure
+
+```
+.
+├── src/                  # API source (to be implemented)
+├── web/                  # Next.js frontend
+│   ├── app/
+│   ├── next.config.js
+│   └── package.json
+├── vercel.json           # Vercel config (frontend root)
+└── package.json          # Backend package.json
+```
+
+## Backend (API) - local development
+
+The backend is scaffolded and ready for implementation. Run these commands once the API is built out:
 
 ```bash
-# 1. Install OpenAI Codex CLI
-npm i -g @openai/codex
-
-# 2. Install Ralph CLI
-npm i -g @iannuttall/ralph
-
-# 3. Set your OpenAI API key
-export OPENAI_API_KEY=your-api-key-here
+npm install
+npm run dev
 ```
 
-## Quick Start
+## Frontend - local development
 
 ```bash
-# 1. Navigate to project
-cd ralph-codex-demo
-
-# 2. Initialize git (required for Ralph)
-git init
-git add -A
-git commit -m "Initial commit with PRD"
-
-# 3. Generate implementation plan from PRD
-ralph plan --agent=codex
-
-# 4. Run Ralph loop - it will build the project automatically!
-ralph build 5 --agent=codex
+cd web
+npm install
+npm run dev
 ```
 
-## How It Works
+Open http://localhost:3000
 
-Ralph reads the PRD at `.agents/tasks/prd.md` and:
+### Connect the frontend to a live API
 
-1. **Plans**: Breaks stories into concrete tasks
-2. **Executes**: Works on one story per iteration
-3. **Commits**: Saves progress to git after each story
-4. **Repeats**: Fresh context each loop, git = memory
+Set `NEXT_PUBLIC_API_URL` to the base URL of your API:
 
-## Commands Reference
-
-| Command | Description |
-|---------|-------------|
-| `ralph plan --agent=codex` | Generate implementation plan |
-| `ralph build 1 --agent=codex` | Run 1 iteration |
-| `ralph build 5 --agent=codex` | Run 5 iterations |
-| `ralph build 1 --no-commit` | Dry run (no commits) |
-
-## Project Structure
-
-```
-ralph-codex-demo/
-├── .agents/
-│   ├── ralph/
-│   │   └── config.sh         # Ralph configuration
-│   └── tasks/
-│       └── prd.md            # Product Requirements ✅
-├── .ralph/                   # State files (auto-created)
-│   ├── IMPLEMENTATION_PLAN.md
-│   ├── progress.md
-│   └── runs/
-├── src/                      # Source code (built by Ralph)
-├── package.json
-├── setup.sh                  # Setup helper script
-└── README.md
+```bash
+export NEXT_PUBLIC_API_URL="https://your-api.example.com"
 ```
 
-## The PRD
+The UI will switch from demo mode to live API mode automatically.
 
-The PRD defines 10 user stories:
+## API endpoints (planned)
 
-1. ✅ Project Setup
-2. ✅ Database Schema  
-3. ✅ Create Snippet Endpoint
-4. ✅ Get All Snippets Endpoint
-5. ✅ Get Single Snippet Endpoint
-6. ✅ Update Snippet Endpoint
-7. ✅ Delete Snippet Endpoint
-8. ✅ Search Endpoint
-9. ✅ API Tests
-10. ✅ Documentation
+```
+POST   /api/snippets
+GET    /api/snippets
+GET    /api/snippets/:id
+PUT    /api/snippets/:id
+DELETE /api/snippets/:id
+GET    /api/snippets/search?q=
+```
 
-Ralph will work through each story, one iteration at a time.
+## Deploy frontend on Vercel
 
-## API Endpoints (After Build)
+This repo is already configured for Vercel.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/snippets | Create snippet |
-| GET | /api/snippets | List all snippets |
-| GET | /api/snippets/:id | Get single snippet |
-| PUT | /api/snippets/:id | Update snippet |
-| DELETE | /api/snippets/:id | Delete snippet |
-| GET | /api/snippets/search?q= | Search snippets |
+1) Import the repo in Vercel  
+2) Set Root Directory to `web` (or rely on `vercel.json`)  
+3) Add `NEXT_PUBLIC_API_URL` in Environment Variables (optional)  
+4) Deploy
 
-## Tips
+Vercel build settings:
+- Build command: `npm run build`
+- Output: Next.js default
 
-- **Start small**: Run `ralph build 1` first to see how it works
-- **Watch costs**: Each iteration uses API tokens
-- **Check progress**: Look at `.ralph/progress.md` between runs
-- **Debug issues**: Check `.ralph/runs/` for detailed logs
+## Notes
+
+- The frontend runs without the backend (demo data included).
+- Once the API is live, set `NEXT_PUBLIC_API_URL` to enable real data.
 
 ## License
 
